@@ -6,6 +6,7 @@ const { expect } = require('chai');
 const app = require('../../../rest/app');
 const userService = require('../../../src/services/userService');
 
+
 // testes 
 describe('Login REST External', () => {
     describe('POST /api/users/login', () => {

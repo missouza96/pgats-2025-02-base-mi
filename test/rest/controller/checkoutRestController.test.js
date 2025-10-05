@@ -2,16 +2,16 @@
 const request = require('supertest');
 const sinon = require('sinon');
 const { expect } = require('chai');
+const { it } = require('mocha');
 
 // aplicação
 const app = require('../../../rest/app');
-const { it } = require('mocha');
 
 
 // testes 
 describe('Checkout REST Controller', () => {
     describe('POST /api/checkout', () => {
-        it('Quando o token é inválido o retorno é 401', async () => {
+        it('Teste 1 - Quando o token é inválido o retorno é 401', async () => {
             const resposta = await request(app)
                  .post('/api/checkout')
                  .send({

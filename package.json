@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha \"test/**/*.test.js\" --timeout 10000",
+    "test": "mocha \"test/rest/controller/**/*.test.js\" --timeout 10000",
     "test-external": "mocha \"test/rest/external/**/*.test.js\" --timeout 10000",
     "test-controller": "mocha \"test/rest/controller/**/*.test.js\" --timeout 10000",
     "start-rest": "node rest/server.js",

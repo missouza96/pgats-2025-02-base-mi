@@ -24,7 +24,7 @@ jobs:
       run: npm install
 
     - name: Run unit tests
-      run: npm test-controller
+      run: npm test
 
     - name: Start REST API
       run: npm run start-rest &

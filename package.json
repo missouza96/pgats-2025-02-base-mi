@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha \"test/**/*.test.js\" --timeout 10000",
-    "test-external": "mocha 'test/external/**/*.test.js' --timeout 10000",
+    "test-external": "mocha \"test/rest/external/**/*.test.js\" --timeout 10000",
     "test-controller": "mocha 'test/controller/**/*.test.js' --timeout 10000",
     "start-rest": "node rest/server.js",
     "start-graphql": "node graphql/server.js"

@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/juliodelimas/pgats-2025-02-base#readme",
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "apollo-server-express": "^3.13.0",
     "chai": "^6.2.0",
     "express": "^4.21.2",

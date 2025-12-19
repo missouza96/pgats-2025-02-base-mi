@@ -289,7 +289,7 @@ __ENV.BASE_URL || 'http://localhost:3000';
 - Fluxo no teste: register → login (pega token) → checkout (usa token). O helper retorna `{ res, token }` para o teste usar.
 - Validação: fazemos `check(res, {'login status 200': r => r.status === 200})` antes de confiar no token.
 
-## Data-Driven Testing - REVISAR
+## Data-Driven Testing
 - aplicamos `check()` nas respostas antes de confiar nos dados 
 ex: `check(res, { 'login status 200': r => r.status === 200 })`.
 

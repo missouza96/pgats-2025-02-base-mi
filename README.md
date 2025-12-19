@@ -216,3 +216,137 @@ Acesse o playground GraphQL em [http://localhost:4000/graphql](http://localhost:
 ## Documentação
 - Swagger disponível em `/api-docs`
 - Playground GraphQL disponível em `/graphql`
+
+
+### k6
+```bash
+$env:K6_WEB_DASHBOARD = "true"; $env:K6_WEB_DASHBOARD_EXPORT = "dashboard.html"; $env:K6_WEB_DASHBOARD_PERIOD = "2s"; k6 run test/k6/checkout.test.js
+
+```
+## checklist funcional
+- Thresholds - 95% das requisições devem responder em menos de 2 segundos
+```bash
+thresholds: {
+    'http_req_duration': ['p(95)<2000'] 
+  }
+```
+	
+## Checks
+- verifica se a api retorna sucesso no registro do usuário com status 201
+```bash
+check(res, { 'register success (201)': r => r.status === 201 }); 
+```
+- verifica se a api retorna sucesso no login do usuário com status 200
+```bash
+check(out.res, { 'login success (200)': r => r.status === 200 });
+```
+- verifica se a api retorna sucesso no ckechout do usuário com status 200
+```bash
+check(res, { 'checkout success (200)': r => r.status === 200 });
+```
+
+## Helpers
+- `auth.js` - contém as informações de login que podem ser acessadas através de suas funções externas
+- `getBaseUrl.js` - contém as informações do endpoint utilizado nos testes
+- `randomEmail.js` - contem uma função externa geradora de email randomico para que cada usuário possua um email único
+
+## Trends
+- métrica adicionada para avaliar o tempo do checkout inteiro e pode ser utilizada para avaliar o valor a ser definido para o percentil p(90) ou p(95) nos thresholds
+```bash
+export let checkoutDuration = new Trend('checkout_duration'); 
+```
+
+## Faker 
+- gera um nome de usuário e password únicos para cada teste
+
+```bash
+  let password = faker.internet.password();
+  let name = faker.person.firstName();
+```
+
+## Variável de Ambiente
+- variavel de ambiente BASE_URL definida para utilização do endpoint
+```bash
+__ENV.BASE_URL || 'http://localhost:3000'; 
+```
+## Stages
+
+## Reaproveitamento de Resposta
+- Onde: `auth.js` e `checkout.test.js`
+- O que fazemos (resumo): extraímos do body da resposta do POST `/api/users/login` o campo `token` e reutilizamos esse valor no header `Authorization` do POST `/api/checkout`.
+- Como está implementado (essencial):
+  - Após o login usamos `res.json().token` para obter o JWT:
+    - `const token = res.json().token`
+  - O helper `loginUser` retorna `{ res, token }` para o chamador.
+  - No teste principal atribuímos `token = out.token e enviamos no checkout:
+    - `headers: { Authorization: \Bearer ${token}}` 
+
+## Uso de Token de Autenticação
+- Onde é obtido: no helper `loginUser` em `auth.js` — após POST `/api/users/login` lemos `res.json().token`.
+- Como extraímos: usamos `res.json().token` 
+- Como é usado: incluímos no header `Authorization` do request de checkout:
+    - `Authorization: 'Bearer ' + token`
+- Fluxo no teste: register → login (pega token) → checkout (usa token). O helper retorna `{ res, token }` para o teste usar.
+- Validação: fazemos `check(res, {'login status 200': r => r.status === 200})` antes de confiar no token.
+
+## Data-Driven Testing - REVISAR
+- aplicamos `check()` nas respostas antes de confiar nos dados 
+ex: `check(res, { 'login status 200': r => r.status === 200 })`.
+
+## Groups
+- Propósito: organizar o script em blocos lógicos (ex.: registro, login, checkout) para tornar o teste mais legível e o relatório mais compreensível.
+- Groups definidos nos testes:
+```bash
+group('Register user', function () {
+    const res = registerUser(name, email, password);
+    check(res, { 'register success (201)': r => r.status === 201 });
+  });
+```
+```bash
+group('Login user', function () {
+    const out = loginUser(email, password);
+    check(out.res, { 'login success (200)': r => r.status === 200 });
+    token = out.token;
+  });
+```
+```bash
+group('Checkout', function () {
+    const url = `${base}/api/checkout`;
+    // The swagger exposes 'boleto' and 'credit_card' as payment methods.
+    // Using 'boleto' as the cash-like option requested.
+    const payload = JSON.stringify({
+      items: [{ productId: 1, quantity: 1 }],
+      freight: 0,
+      paymentMethod: 'boleto'
+    });
+    const params = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token || ''}`
+      }
+    };
+    const t0 = Date.now();
+    const res = http.post(url, payload, params);
+    const dur = Date.now() - t0;
+    checkoutDuration.add(dur);
+    check(res, { 'checkout success (200)': r => r.status === 200 });
+  });
+```
+- O que proporciona:
+  - Agrupa checks e requests no output do k6, facilitando identificar qual etapa falhou.
+  - Permite estrutura hierárquica (nested groups) para separar subtarefas.
+  - Facilita depuração e leitura do relatório por fluxo de negócio.
+
+
+### checklist não funcional
+- `avg` - média de tempo de execução
+- `min` - tempo de resposta mais rápido obtido na execução
+- `max` - tempo de resposta mais lento obtido na execução
+- `med` - mediana, organiza os elementos de maneira crescente. 
+- `http_reqs` - quantidade de requisições enviadas
+- `http_req_failed` - quantidade de requisições com falhas
+- `p(90)` - percentil definido para tempo de execução para 90% dos usuários
+- `p(95)` - percentil definido para tempo de execução para 95% dos usuários
+- `iteration_duration` - duração de cada execução
+- `vus` - quantidade de usuários definidos para o teste 
+- `vus_maxc` - quantidade de usuários utilizados no teste 

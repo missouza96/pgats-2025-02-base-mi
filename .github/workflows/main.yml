@@ -34,3 +34,6 @@ jobs:
 
     - name: Run external API tests
       run: npm run test-external
+
+    - name: Run Performance Tests
+      run: $env:K6_WEB_DASHBOARD = "true"; $env:K6_WEB_DASHBOARD_EXPORT = "dashboard.html"; $env:K6_WEB_DASHBOARD_PERIOD = "2s"; k6 run test/k6/checkout.test.js

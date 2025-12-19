@@ -58,6 +58,6 @@ export default function () {
     check(res, { 'checkout success (200)': r => r.status === 200 });
   });
 
-  
+
   sleep(1);
 }

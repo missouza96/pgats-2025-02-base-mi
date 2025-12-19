@@ -35,6 +35,9 @@ jobs:
     - name: Run external API tests
       run: npm run test-external
 
+    - name: Install k6
+      run: sudo apt-get update && sudo apt-get install -y k6
+
     - name: Run Performance Tests
       run: |
         export K6_WEB_DASHBOARD="true"

@@ -35,5 +35,18 @@ jobs:
     - name: Run external API tests
       run: npm run test-external
 
+    - name: Install k6
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gnupg2
+        curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+        echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install -y k6
+
     - name: Run Performance Tests
-      run: $env:K6_WEB_DASHBOARD = "true"; $env:K6_WEB_DASHBOARD_EXPORT = "dashboard.html"; $env:K6_WEB_DASHBOARD_PERIOD = "2s"; k6 run test/k6/checkout.test.js
+      run: |
+        export K6_WEB_DASHBOARD="true"
+        export K6_WEB_DASHBOARD_EXPORT="dashboard.html"
+        export K6_WEB_DASHBOARD_PERIOD="2s"
+        k6 run test/k6/checkout.test.js

@@ -17,6 +17,7 @@ export let options = {
   },
 };
 
+
 export default function () {
   const base = getBaseUrl();
   const email = randomEmail();
@@ -57,5 +58,6 @@ export default function () {
     check(res, { 'checkout success (200)': r => r.status === 200 });
   });
 
+  
   sleep(1);
 }
